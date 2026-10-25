@@ -28,6 +28,8 @@
   </head>
   <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-600 selection:text-white">
     <div id="root"></div>
+    <audio id="intro-audio" src="/intro.mp3" preload="auto"></audio>
+
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
@@ -35,21 +37,15 @@
           navigator.serviceWorker.register('/sw.js').catch(() => {});
         });
       }
-    </script>
-  </body>
-</html>
-    <audio id="intro-audio" src="intro.mp3" preload="auto"></audio>
 
-    <script>
       document.addEventListener('click', function() {
-          const introAudio = document.getElementById('intro-audio');
-          if (introAudio) {
-              introAudio.play().catch(function(error) {
-                  console.log("Audio play failed:", error);
-              });
-          }
+        const introAudio = document.getElementById('intro-audio');
+        if (introAudio) {
+          introAudio.play().catch(function(error) {
+            console.log("Audio notice:", error);
+          });
+        }
       }, { once: true });
     </script>
-
-</body>
+  </body>
 </html>
