@@ -38,3 +38,18 @@
     </script>
   </body>
 </html>
+    <audio id="intro-audio" src="intro.mp3" preload="auto"></audio>
+
+    <script>
+      document.addEventListener('click', function() {
+          const introAudio = document.getElementById('intro-audio');
+          if (introAudio) {
+              introAudio.play().catch(function(error) {
+                  console.log("Audio play failed:", error);
+              });
+          }
+      }, { once: true });
+    </script>
+
+</body>
+</html>
