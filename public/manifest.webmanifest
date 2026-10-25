@@ -1,0 +1,33 @@
+{
+  "id": "/",
+  "name": "Mehdipur Balaji Automobile - HP Fuel Hub",
+  "short_name": "HP Balaji",
+  "description": "Authorized HPCL Retail Outlet on Mathura-Hathras Highway. Live daily fuel rates, DEF urea dosage, certified density, 24x7 clean washrooms, and AI driver co-pilot.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1e3a8a",
+  "background_color": "#020617",
+  "categories": ["travel", "navigation", "utilities"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

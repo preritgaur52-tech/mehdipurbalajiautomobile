@@ -1,0 +1,8 @@
+{
+  "name": "Remix Mehdipur Balaji Automobile - HP Petrol Pump",
+  "description": "Authorized HP Fuel Hub in Western UP powering journeys with superior fuel quality, DEF urea, clean washrooms, and 24x7 highway pitstop services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
