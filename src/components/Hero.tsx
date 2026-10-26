@@ -14,19 +14,31 @@ import {
   Compass,
   AlertTriangle,
   Flame,
+  SlidersHorizontal,
+  Download,
 } from 'lucide-react';
 import { RupeeIcon } from './RupeeIcon';
-import { DEFAULT_RATES, formatCurrencyINR } from '../utils/fuelCalculations';
+import { DEFAULT_RATES, formatCurrencyINR, FuelRate } from '../utils/fuelCalculations';
 
 interface HeroProps {
   onOpenCalculator: () => void;
   onOpenFleetModal: () => void;
+  onOpenOwnerPortal?: (fuelId?: string) => void;
+  onOpenDownloadApp?: () => void;
+  rates?: FuelRate[];
 }
 
 export const Hero: React.FC<HeroProps> = ({
   onOpenCalculator,
   onOpenFleetModal,
+  onOpenOwnerPortal,
+  onOpenDownloadApp,
+  rates,
 }) => {
+  const dieselRate = rates?.find((r) => r.id === 'diesel')?.price ?? 95.47;
+  const petrolRate = rates?.find((r) => r.id === 'petrol')?.price ?? 101.92;
+  const power95Rate = rates?.find((r) => r.id === 'power95')?.price ?? 104.50;
+  const ureaRate = rates?.find((r) => r.id === 'def_urea')?.price ?? 65.00;
   const [currentTime, setCurrentTime] = useState<string>('');
   const [heroImageMode, setHeroImageMode] = useState<'day' | 'dusk'>('dusk');
   const [activeHeroTab, setActiveHeroTab] = useState<'rates' | 'calculator'>('rates');
@@ -167,6 +179,18 @@ export const Hero: React.FC<HeroProps> = ({
                 <Calculator className="w-4 h-4 text-blue-400 shrink-0" />
                 <span>Fuel Calculator</span>
               </button>
+
+              {onOpenDownloadApp && (
+                <button
+                  type="button"
+                  onClick={onOpenDownloadApp}
+                  className="flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-bold text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900/80 border border-emerald-600/70 rounded-xl backdrop-blur-md transition-all active:scale-95 text-center shadow-lg shadow-emerald-950/40"
+                  title="Download HP Balaji Official App"
+                >
+                  <Download className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Download App</span>
+                </button>
+              )}
             </div>
 
             {/* Trust Highlights */}
@@ -221,6 +245,18 @@ export const Hero: React.FC<HeroProps> = ({
                     <Calculator className="w-3 h-3" />
                     <span>Quick Calc</span>
                   </button>
+
+                  {onOpenOwnerPortal && (
+                    <button
+                      type="button"
+                      onClick={() => onOpenOwnerPortal()}
+                      className="px-2 py-1 rounded-lg font-bold text-amber-300 hover:text-white hover:bg-amber-950/80 transition-all flex items-center gap-1 border border-amber-600/30"
+                      title="Edit fuel rates manually"
+                    >
+                      <SlidersHorizontal className="w-2.5 h-2.5 text-amber-400" />
+                      <span>Edit</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -247,7 +283,7 @@ export const Hero: React.FC<HeroProps> = ({
                       </div>
                       <div className="text-2xl font-extrabold text-white mt-1 flex items-center gap-1 font-mono">
                         <RupeeIcon className="w-5 h-5 text-blue-400" />
-                        <span>95.47</span>
+                        <span>{dieselRate.toFixed(2)}</span>
                         <span className="text-[11px] font-normal text-slate-400">/L</span>
                       </div>
                       <div className="flex items-center justify-between mt-1 text-[10px]">
@@ -275,7 +311,7 @@ export const Hero: React.FC<HeroProps> = ({
                       </div>
                       <div className="text-2xl font-extrabold text-white mt-1 flex items-center gap-1 font-mono">
                         <RupeeIcon className="w-5 h-5 text-blue-400" />
-                        <span>101.92</span>
+                        <span>{petrolRate.toFixed(2)}</span>
                         <span className="text-[11px] font-normal text-slate-400">/L</span>
                       </div>
                       <div className="flex items-center justify-between mt-1 text-[10px]">
@@ -298,7 +334,7 @@ export const Hero: React.FC<HeroProps> = ({
                       </span>
                       <div className="text-2xl font-extrabold text-amber-300 mt-1 flex items-center gap-1 font-mono">
                         <RupeeIcon className="w-5 h-5 text-amber-400" />
-                        <span>104.50</span>
+                        <span>{power95Rate.toFixed(2)}</span>
                         <span className="text-[11px] font-normal text-slate-400">/L</span>
                       </div>
                       <div className="flex items-center justify-between mt-1 text-[10px]">
@@ -321,7 +357,7 @@ export const Hero: React.FC<HeroProps> = ({
                       </span>
                       <div className="text-2xl font-extrabold text-blue-300 mt-1 flex items-center gap-1 font-mono">
                         <RupeeIcon className="w-5 h-5 text-blue-400" />
-                        <span>65.00</span>
+                        <span>{ureaRate.toFixed(2)}</span>
                         <span className="text-[11px] font-normal text-slate-400">/L</span>
                       </div>
                       <div className="flex items-center justify-between mt-1 text-[10px]">
@@ -338,8 +374,8 @@ export const Hero: React.FC<HeroProps> = ({
                     <span className="text-slate-400 font-semibold">Selected Fuel Grade:</span>
                     <div className="flex gap-1">
                       {[
-                        { id: 'diesel', label: 'Diesel', rate: '95.47' },
-                        { id: 'petrol', label: 'Petrol', rate: '101.92' },
+                        { id: 'diesel', label: 'Diesel', rate: dieselRate.toFixed(2) },
+                        { id: 'petrol', label: 'Petrol', rate: petrolRate.toFixed(2) },
                       ].map((f) => (
                         <button
                           key={f.id}
@@ -403,14 +439,14 @@ export const Hero: React.FC<HeroProps> = ({
                     <div>
                       <span className="text-[10px] text-slate-400 uppercase tracking-wide block">Exact Dispensed Litres</span>
                       <div className="text-xl font-extrabold text-emerald-400 font-mono">
-                        {(heroCalcAmount / (heroCalcFuel === 'diesel' ? 95.47 : 101.92)).toFixed(2)}{' '}
+                        {(heroCalcAmount / (heroCalcFuel === 'diesel' ? dieselRate : petrolRate)).toFixed(2)}{' '}
                         <span className="text-xs text-slate-300 font-normal">Litres</span>
                       </div>
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] text-slate-400 uppercase tracking-wide block">Est. Range (~16 km/L)</span>
                       <div className="text-xl font-extrabold text-blue-400 font-mono">
-                        ~{Math.round((heroCalcAmount / (heroCalcFuel === 'diesel' ? 95.47 : 101.92)) * 16)}{' '}
+                        ~{Math.round((heroCalcAmount / (heroCalcFuel === 'diesel' ? dieselRate : petrolRate)) * 16)}{' '}
                         <span className="text-xs text-slate-300 font-normal">km</span>
                       </div>
                     </div>

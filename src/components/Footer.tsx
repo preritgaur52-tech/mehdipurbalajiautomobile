@@ -1,12 +1,19 @@
 import React from 'react';
-import { Phone, MapPin, Navigation, Mail, ShieldCheck, Heart, Sparkles } from 'lucide-react';
+import { Phone, MapPin, Navigation, Mail, ShieldCheck, Heart, Sparkles, Lock, Download } from 'lucide-react';
 
 interface FooterProps {
   onOpenUploadGuide: () => void;
   onOpenFleetModal: () => void;
+  onOpenOwnerPortal?: () => void;
+  onOpenDownloadApp?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenUploadGuide, onOpenFleetModal }) => {
+export const Footer: React.FC<FooterProps> = ({
+  onOpenUploadGuide,
+  onOpenFleetModal,
+  onOpenOwnerPortal,
+  onOpenDownloadApp,
+}) => {
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -86,6 +93,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenUploadGuide, onOpenFleetMo
                   Highway Location & Route Map
                 </a>
               </li>
+              {onOpenDownloadApp && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={onOpenDownloadApp}
+                    className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1.5 font-bold"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Mobile App (Android & iOS)</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -109,6 +128,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenUploadGuide, onOpenFleetMo
               </a>
 
               <div className="pt-2 flex flex-col gap-2">
+                {onOpenDownloadApp && (
+                  <button
+                    type="button"
+                    onClick={onOpenDownloadApp}
+                    className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 hover:from-blue-600 hover:to-indigo-600 border border-blue-600/80 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-950/60 transition-all active:scale-95"
+                  >
+                    <Download className="w-4 h-4 text-white" />
+                    <span>Download Official Mobile App</span>
+                  </button>
+                )}
                 <button
                   onClick={onOpenUploadGuide}
                   className="w-full py-2.5 px-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
@@ -137,6 +166,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenUploadGuide, onOpenFleetMo
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>100% Calibrated Fuel Quality</span>
             </span>
+            {onOpenOwnerPortal && (
+              <button
+                type="button"
+                onClick={onOpenOwnerPortal}
+                className="flex items-center gap-1 text-slate-600 hover:text-blue-400 transition-colors py-1 px-1.5 rounded-lg group text-[11px]"
+                title="Forecourt Master Console · Station Owner Access (PIN Protected)"
+                aria-label="Owner Access Portal"
+              >
+                <Lock className="w-3 h-3 text-slate-600 group-hover:text-blue-400 transition-colors" />
+                <span className="opacity-70 group-hover:opacity-100 font-medium">Owner Access</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

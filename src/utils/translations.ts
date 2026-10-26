@@ -30,6 +30,8 @@ export interface Translations {
   whyChooseUs: string;
   forecourtTelemetry: string;
   bayInspector: string;
+  downloadApp: string;
+  downloadAppDesc: string;
 }
 
 export const TRANSLATIONS: Record<Language, Translations> = {
@@ -63,6 +65,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     whyChooseUs: 'Why Choose Us?',
     forecourtTelemetry: 'Live Forecourt IoT Telemetry',
     bayInspector: 'Interactive Forecourt Bay Inspector',
+    downloadApp: 'Download App',
+    downloadAppDesc: 'Install our official mobile app for 1-tap offline fuel rates, GPS directions, and AI Highway Co-Pilot.',
   },
   hi: {
     stationTitle: 'मेंहदीपुर बालाजी ऑटोमोबाइल',
@@ -94,5 +98,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     whyChooseUs: 'हमें क्यों चुनें?',
     forecourtTelemetry: 'लाइव फोरकोर्ट आईओटी टेलीमेट्री',
     bayInspector: 'फोरकोर्ट बे एवं डिस्पेंसर गाइड',
+    downloadApp: 'ऐप डाउनलोड करें',
+    downloadAppDesc: 'ऑफलाइन दैनिक दरें, जीपीएस हाईवे मैप और एआई को-पायलट के लिए ऑफिशियल ऐप डाउनलोड करें।',
   },
 };

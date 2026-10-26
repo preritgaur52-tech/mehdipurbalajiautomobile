@@ -12,6 +12,8 @@ import {
   Lock,
   X,
   CheckCircle2,
+  SlidersHorizontal,
+  Pencil,
 } from 'lucide-react';
 import { RupeeIcon } from './RupeeIcon';
 import {
@@ -23,9 +25,10 @@ import {
 
 interface RateBoardProps {
   onOpenCalculator: (fuelId: string) => void;
+  onOpenOwnerPortal?: (fuelId?: string) => void;
 }
 
-export const RateBoard: React.FC<RateBoardProps> = ({ onOpenCalculator }) => {
+export const RateBoard: React.FC<RateBoardProps> = ({ onOpenCalculator, onOpenOwnerPortal }) => {
   const initialData = getAutomatedDailyFuelRates();
   const [rates, setRates] = useState<FuelRate[]>(initialData.rates);
   const [meta, setMeta] = useState<DailyRevisionMeta>(initialData.meta);
@@ -33,9 +36,18 @@ export const RateBoard: React.FC<RateBoardProps> = ({ onOpenCalculator }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
-  // Fetch live daily rates from server on mount
+  // Fetch live daily rates from server on mount and listen to owner updates
   useEffect(() => {
     fetchRates();
+
+    const handleUpdate = () => {
+      fetchRates();
+    };
+
+    window.addEventListener('fuel-rates-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('fuel-rates-updated', handleUpdate);
+    };
   }, []);
 
   const fetchRates = async () => {
@@ -111,6 +123,19 @@ export const RateBoard: React.FC<RateBoardProps> = ({ onOpenCalculator }) => {
               <RefreshCw className={`w-3.5 h-3.5 text-blue-400 ${isSyncing ? 'animate-spin' : ''}`} />
               <span>{isSyncing ? 'Synchronizing...' : `Valid: ${meta.revisedDate}`}</span>
             </button>
+
+            {/* Direct Manual Fuel Rate Editing Option */}
+            {onOpenOwnerPortal && (
+              <button
+                type="button"
+                onClick={() => onOpenOwnerPortal()}
+                className="text-xs font-semibold text-amber-300 bg-amber-950/80 hover:bg-amber-900 border border-amber-600/70 px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95 hover:shadow-amber-900/30"
+                title="Manually edit fuel rates and retrain AI"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+                <span>Edit Rates Manually</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -197,13 +222,29 @@ export const RateBoard: React.FC<RateBoardProps> = ({ onOpenCalculator }) => {
 
                   {/* Digital Price Display */}
                   <div className="mb-5 p-4 rounded-2xl bg-black/60 border border-slate-800/80 shadow-inner">
-                    <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-mono flex items-center gap-1.5">
-                      <RupeeIcon
-                        className={`w-7 h-7 sm:w-8 sm:h-8 ${
-                          isPremium ? 'text-amber-400' : isUrea ? 'text-cyan-400' : 'text-blue-400'
-                        }`}
-                      />
-                      <span>{rate.price.toFixed(2)}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-mono flex items-center gap-1.5">
+                        <RupeeIcon
+                          className={`w-7 h-7 sm:w-8 sm:h-8 ${
+                            isPremium ? 'text-amber-400' : isUrea ? 'text-cyan-400' : 'text-blue-400'
+                          }`}
+                        />
+                        <span>{rate.price.toFixed(2)}</span>
+                      </div>
+                      {onOpenOwnerPortal && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenOwnerPortal(rate.id);
+                          }}
+                          className="text-[10px] font-bold text-amber-300 hover:text-amber-100 bg-amber-950/70 hover:bg-amber-900 border border-amber-700/60 px-2 py-1 rounded-lg transition-all flex items-center gap-1 shadow active:scale-95"
+                          title={`Manually edit ${rate.name} rate`}
+                        >
+                          <Pencil className="w-2.5 h-2.5 text-amber-400" />
+                          <span>Edit Rate</span>
+                        </button>
+                      )}
                     </div>
                     <div className="text-[11px] font-medium text-slate-400 mt-1.5 flex items-center justify-between">
                       <span>{rate.unit}</span>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { RateBoard } from './components/RateBoard';
@@ -18,13 +18,58 @@ import { AutoVoiceIntro } from './components/VoiceIntroPlayer';
 import { Footer } from './components/Footer';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { MobileQuickBar } from './components/MobileQuickBar';
+import { OwnerPortalModal } from './components/OwnerPortalModal';
+import { DownloadAppModal } from './components/DownloadAppModal';
+import { useFuelRates } from './hooks/useFuelRates';
 import { Language } from './utils/translations';
 
 export default function App() {
   const [currentLang, setCurrentLang] = useState<Language>('en');
   const [isFleetModalOpen, setIsFleetModalOpen] = useState(false);
   const [isGoogleGuideOpen, setIsGoogleGuideOpen] = useState(false);
+  const [isOwnerModalOpen, setIsOwnerModalOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [focusedFuelId, setFocusedFuelId] = useState<string | undefined>();
   const [calculatorFuelId, setCalculatorFuelId] = useState('diesel');
+
+  const { rates, refreshRates } = useFuelRates();
+
+  const handleOpenOwnerPortal = (fuelId?: string) => {
+    setFocusedFuelId(fuelId);
+    setIsOwnerModalOpen(true);
+  };
+
+  // Hidden owner portal triggers (#owner / #admin), download app (#download / #app / #install), and keyboard shortcut (Alt+Shift+P)
+  useEffect(() => {
+    const handleCheckHash = () => {
+      if (window.location.hash === '#owner' || window.location.hash === '#admin') {
+        setIsOwnerModalOpen(true);
+      } else if (
+        window.location.hash === '#download' ||
+        window.location.hash === '#install' ||
+        window.location.hash === '#app'
+      ) {
+        setIsDownloadModalOpen(true);
+      }
+    };
+    handleCheckHash();
+    window.addEventListener('hashchange', handleCheckHash);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.altKey && e.shiftKey && e.key.toLowerCase() === 'p') ||
+        (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'p')
+      ) {
+        setIsOwnerModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('hashchange', handleCheckHash);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const handleOpenCalculator = (fuelId: string) => {
     setCalculatorFuelId(fuelId);
@@ -49,6 +94,8 @@ export default function App() {
         onToggleLang={handleToggleLang}
         onOpenUploadGuide={() => setIsGoogleGuideOpen(true)}
         onOpenFleetModal={() => setIsFleetModalOpen(true)}
+        onOpenOwnerPortal={() => setIsOwnerModalOpen(true)}
+        onOpenDownloadApp={() => setIsDownloadModalOpen(true)}
       />
 
       {/* Main Content Sections with mobile bottom bar offset */}
@@ -57,10 +104,16 @@ export default function App() {
         <Hero
           onOpenCalculator={() => handleOpenCalculator('diesel')}
           onOpenFleetModal={() => setIsFleetModalOpen(true)}
+          onOpenOwnerPortal={handleOpenOwnerPortal}
+          onOpenDownloadApp={() => setIsDownloadModalOpen(true)}
+          rates={rates}
         />
 
         {/* Live Daily Fuel & DEF Rates Board */}
-        <RateBoard onOpenCalculator={handleOpenCalculator} />
+        <RateBoard
+          onOpenCalculator={handleOpenCalculator}
+          onOpenOwnerPortal={handleOpenOwnerPortal}
+        />
 
         {/* Live Forecourt IoT Density & Tank Telemetry Grid */}
         <ForecourtTelemetry />
@@ -94,6 +147,8 @@ export default function App() {
       <Footer
         onOpenUploadGuide={() => setIsGoogleGuideOpen(true)}
         onOpenFleetModal={() => setIsFleetModalOpen(true)}
+        onOpenOwnerPortal={() => setIsOwnerModalOpen(true)}
+        onOpenDownloadApp={() => setIsDownloadModalOpen(true)}
       />
 
       {/* Commercial Fleet & Bulk Inquiry Modal */}
@@ -108,6 +163,37 @@ export default function App() {
         onClose={() => setIsGoogleGuideOpen(false)}
       />
 
+      {/* Official HP Balaji Mobile App Download Modal */}
+      <DownloadAppModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => {
+          setIsDownloadModalOpen(false);
+          if (
+            window.location.hash === '#download' ||
+            window.location.hash === '#install' ||
+            window.location.hash === '#app'
+          ) {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }}
+        currentLang={currentLang}
+      />
+
+      {/* Hidden Station Owner Portal & AI Model Training Modal */}
+      <OwnerPortalModal
+        isOpen={isOwnerModalOpen}
+        initialFuelId={focusedFuelId}
+        onClose={() => {
+          setIsOwnerModalOpen(false);
+          setFocusedFuelId(undefined);
+          if (window.location.hash === '#owner' || window.location.hash === '#admin') {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        }}
+        currentRates={rates}
+        onRatesUpdated={refreshRates}
+      />
+
       {/* Automatic Hindi Voice Intro Player (starts on open website) */}
       <AutoVoiceIntro />
 
@@ -117,6 +203,7 @@ export default function App() {
       {/* Sticky Bottom Highway Quick Bar for Mobile Devices */}
       <MobileQuickBar
         onOpenCalculator={() => handleOpenCalculator('diesel')}
+        onOpenDownloadApp={() => setIsDownloadModalOpen(true)}
         onOpenCopilot={() => {
           const chatBtn = document.querySelector('button[aria-label="Open Gemini AI Assistant"]') as HTMLButtonElement;
           if (chatBtn) chatBtn.click();

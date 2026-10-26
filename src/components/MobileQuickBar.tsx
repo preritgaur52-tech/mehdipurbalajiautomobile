@@ -6,11 +6,13 @@ import { PWAInstallButton } from './PWAInstallButton';
 interface MobileQuickBarProps {
   onOpenCalculator: () => void;
   onOpenCopilot: () => void;
+  onOpenDownloadApp?: () => void;
 }
 
 export const MobileQuickBar: React.FC<MobileQuickBarProps> = ({
   onOpenCalculator,
   onOpenCopilot,
+  onOpenDownloadApp,
 }) => {
   const { isInstalled } = usePWAInstall();
 
@@ -79,24 +81,18 @@ export const MobileQuickBar: React.FC<MobileQuickBarProps> = ({
           <span className="truncate">Calc</span>
         </button>
 
-        {/* Action 5: Gemini AI Co-Pilot or Install */}
-        {!isInstalled ? (
-          <div className="flex flex-col items-center justify-center">
-            <PWAInstallButton variant="compact" className="text-white hover:text-white" />
+        {/* Action 5: Download App */}
+        <button
+          type="button"
+          onClick={onOpenDownloadApp || onOpenCopilot}
+          className="flex flex-col items-center justify-center py-1 rounded-xl hover:bg-slate-800 text-slate-300 active:text-blue-300 active:scale-95 transition-all"
+          title="Download HP Balaji Official App"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-900/50">
+            <Download className="w-4 h-4" />
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={onOpenCopilot}
-            className="flex flex-col items-center justify-center py-1 rounded-xl hover:bg-slate-800 text-blue-400 active:scale-95 transition-all"
-            title="Open Gemini AI Highway Assistant"
-          >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-900/50">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span className="truncate">AI Co-Pilot</span>
-          </button>
-        )}
+          <span className="truncate">Download</span>
+        </button>
       </div>
     </aside>
   );

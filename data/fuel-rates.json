@@ -1,0 +1,41 @@
+{
+  "diesel": 95.47,
+  "petrol": 101.92,
+  "power95": 104.5,
+  "def_urea": 65,
+  "dieselDensity": "820 - 860 kg/m³",
+  "petrolDensity": "720 - 775 kg/m³",
+  "lastUpdated": "2026-10-25T07:11:19.257Z",
+  "updatedBy": "owner",
+  "aiSyncStatus": "retrained",
+  "aiTrainingNotes": "AI Model prompt retrained on owner manual calibration: Diesel ₹95.47, Petrol ₹101.92, Power95 ₹104.5, DEF Urea ₹65",
+  "history": [
+    {
+      "timestamp": "2026-10-25T07:11:19.257Z",
+      "diesel": 95.47,
+      "petrol": 101.92,
+      "power95": 104.5,
+      "def_urea": 65,
+      "updatedBy": "owner",
+      "note": "Baseline Aligarh benchmark calibration"
+    },
+    {
+      "timestamp": "2026-10-25T07:11:07.811Z",
+      "diesel": 95.5,
+      "petrol": 101.95,
+      "power95": 104.6,
+      "def_urea": 65,
+      "updatedBy": "owner",
+      "note": "Owner verified morning price update"
+    },
+    {
+      "timestamp": "2026-10-25T06:00:00.000Z",
+      "diesel": 95.47,
+      "petrol": 101.92,
+      "power95": 104.5,
+      "def_urea": 65,
+      "updatedBy": "owner",
+      "note": "Official Aligarh district benchmark baseline"
+    }
+  ]
+}
