@@ -800,38 +800,6 @@ server.on('upgrade', (request, socket, head) => {
   }
 });
 
-// Google Search Console Verification Endpoint
-app.get('/googlecc3f13dd6fd384e5.html', (_req: Request, res: Response) => {
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.send('google-site-verification: googlecc3f13dd6fd384e5.html');
-});
-
-// Generic Google verification catch-all for any verification HTML file
-app.get('/google:id.html', (req: Request, res: Response) => {
-  const fileName = `google${req.params.id}.html`;
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.send(`google-site-verification: ${fileName}`);
-});
-
-// Search Engine Crawling & Sitemap Endpoints
-app.get('/robots.txt', (_req: Request, res: Response) => {
-  const robotsPath = path.resolve(__dirname, 'public', 'robots.txt');
-  if (fs.existsSync(robotsPath)) {
-    res.type('text/plain').sendFile(robotsPath);
-  } else {
-    res.type('text/plain').send('User-agent: *\nAllow: /\nSitemap: /sitemap.xml\n');
-  }
-});
-
-app.get('/sitemap.xml', (_req: Request, res: Response) => {
-  const sitemapPath = path.resolve(__dirname, 'public', 'sitemap.xml');
-  if (fs.existsSync(sitemapPath)) {
-    res.type('application/xml').sendFile(sitemapPath);
-  } else {
-    res.status(404).end();
-  }
-});
-
 // Mount static production bundle or Vite in dev
 async function setupVite() {
   const distPath = path.resolve(__dirname, 'dist');
@@ -849,13 +817,7 @@ async function setupVite() {
     }));
 
     app.get('*', (req, res, next) => {
-      if (
-        req.path.startsWith('/api') ||
-        req.path.startsWith('/live') ||
-        req.path.startsWith('/google') ||
-        req.path === '/robots.txt' ||
-        req.path === '/sitemap.xml'
-      ) {
+      if (req.path.startsWith('/api') || req.path.startsWith('/live')) {
         return next();
       }
       res.sendFile(indexHtml);

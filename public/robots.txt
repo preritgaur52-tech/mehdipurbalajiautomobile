@@ -1,6 +1,0 @@
-# Robots.txt for Mehdipur Balaji Automobile (HP Petrol Pump)
-User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: /sitemap.xml
