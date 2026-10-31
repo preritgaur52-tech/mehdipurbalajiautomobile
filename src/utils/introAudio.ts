@@ -8,15 +8,15 @@ export interface IntroVoiceConfig {
 export const INTRO_VOICE_SCRIPTS: Record<'en' | 'hi', IntroVoiceConfig> = {
   en: {
     lang: 'en',
-    text: 'Welcome to Mehdipur Balaji Automobile! Your trusted HP Fuel Hub, powering your journeys with guaranteed fuel purity, DEF urea, and 24/7 highway service.',
-    voiceName: 'Kore',
+    text: 'Welcome to Mehdipur Balaji Automobile! Your trusted HP Fuel Hub on the Mathura-Hathras Highway. Pure diesel, petrol, DEF urea, and 24/7 highway service. Safe travels! — Owner: Shashank Sharma',
+    voiceName: 'Aoede',
     styleDescription: 'Warm, engaging, professional, hospitable and clear greeting to highway travelers',
   },
   hi: {
     lang: 'hi',
-    text: 'नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल में आपका हार्दिक स्वागत है। गुणवत्ता और विश्वास के साथ आपकी यात्रा को ऊर्जावान बनाते हुए, हम सदैव आपकी सेवा में तत्पर हैं।',
-    voiceName: 'Kore',
-    styleDescription: 'Warm, respectful, welcoming Hindi greeting for petrol pump visitors',
+    text: 'नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल, एचपी फ्यूल हब में आपका हार्दिक स्वागत है। मथुरा-हाथरस हाईवे पर हमारी अत्याधुनिक पेट्रोल पंप पर आपको मिलता है शत-प्रतिशत शुद्ध व प्रमाणित हाई-स्पीड डीजल, पेट्रोल, पॉवर 95, और बीएस-6 वाहनों के लिए ओरिजिनल डीईएफ यूरिया। साथ ही मुफ़्त डिजिटल एयर, नाइट्रोजन, और 24 घंटे साफ़-सुथरे वॉशरूम की उत्तम सुविधा। आपकी हर यात्रा हो सुखद और सुरक्षित। धन्यवाद! ऑनर: शशांक शर्मा।',
+    voiceName: 'Aoede',
+    styleDescription: 'Warm, welcoming, confident, professional Indian female voice (Broadcast quality, loud and clear, 14 LUFS)',
   },
 };
 

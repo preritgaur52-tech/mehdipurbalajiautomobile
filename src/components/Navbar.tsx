@@ -83,18 +83,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Globe2 className="w-3.5 h-3.5 text-blue-600" />
               <span>{currentLang === 'en' ? 'Hindi (HI)' : 'English (EN)'}</span>
             </button>
-
-            {/* AI Assistant Trigger */}
-            <button
-              onClick={() => {
-                const chatBtn = document.querySelector('button[aria-label="Open Gemini AI Assistant"]') as HTMLButtonElement;
-                if (chatBtn) chatBtn.click();
-              }}
-              className="text-xs font-semibold text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 border border-blue-200"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>{t.navCopilot}</span>
-            </button>
           </nav>
 
           {/* Zone 3: Primary Action & Direct Contact */}

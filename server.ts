@@ -9,6 +9,8 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { GoogleGenAI, Modality } from '@google/genai';
 import type { LiveServerMessage } from '@google/genai';
 
+import compression from 'compression';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,6 +20,8 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+// Enable HTTP response compression (gzip / deflate) for mobile speed
+app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 
 // Shared Gemini API client instance on the server
@@ -551,38 +555,73 @@ app.post('/api/admin/ai-sync-rates', async (req: Request, res: Response) => {
 // In-memory cache for the station intro voice
 const introAudioCache: Record<string, { audioBase64: string; mimeType: string }> = {};
 
+// Preload recorded official intro audio file to eliminate Gemini TTS quota usage
+function getStaticIntroAudio(): { audioBase64: string; mimeType: string } | null {
+  try {
+    const staticPaths = [
+      path.resolve(__dirname, 'public', 'intro.mp3'),
+      path.resolve(__dirname, 'intro.mp3'),
+    ];
+    for (const p of staticPaths) {
+      if (fs.existsSync(p)) {
+        const buf = fs.readFileSync(p);
+        if (buf.length > 0) {
+          return {
+            audioBase64: buf.toString('base64'),
+            mimeType: 'audio/mp3',
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Could not read static intro.mp3:', err);
+  }
+  return null;
+}
+
 // GET /api/intro-audio - Dedicated professional station intro voice greeting
 app.get('/api/intro-audio', async (req: Request, res: Response) => {
-  try {
-    const lang = (req.query.lang as string) === 'hi' ? 'hi' : 'en';
-    const voice = (req.query.voice as string) || 'Kore';
+  const lang = (req.query.lang as string) === 'hi' ? 'hi' : 'en';
+  const introText =
+    lang === 'hi'
+      ? 'नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल, एचपी फ्यूल हब में आपका हार्दिक स्वागत है। मथुरा-हाथरस हाईवे पर हमारी अत्याधुनिक पेट्रोल पंप पर आपको मिलता है शत-प्रतिशत शुद्ध व प्रमाणित हाई-स्पीड डीजल, पेट्रोल, पॉवर 95, और बीएस-6 वाहनों के लिए ओरिजिनल डीईएफ यूरिया। साथ ही मुफ़्त डिजिटल एयर, नाइट्रोजन, और 24 घंटे साफ़-सुथरे वॉशरूम की उत्तम सुविधा। आपकी हर यात्रा हो सुखद और सुरक्षित। धन्यवाद! ऑनर: शशांक शर्मा।'
+      : 'Welcome to Mehdipur Balaji Automobile! Your trusted HP Fuel Hub on the Mathura-Hathras Highway. Pure diesel, petrol, DEF urea, and 24/7 highway service. Safe travels! — Owner: Shashank Sharma';
 
+  try {
+    // 1. Check in-memory cache
     if (introAudioCache[lang]) {
       res.json({
         ...introAudioCache[lang],
         source: 'cache',
-        text:
-          lang === 'hi'
-            ? 'नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल में आपका हार्दिक स्वागत है।'
-            : 'Welcome to Mehdipur Balaji Automobile! Your trusted HP Fuel Hub.',
+        text: introText,
       });
       return;
     }
 
-    const introText =
-      lang === 'hi'
-        ? 'नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल में आपका हार्दिक स्वागत है। गुणवत्ता और विश्वास के साथ आपकी यात्रा को ऊर्जावान बनाते हुए, हम सदैव आपकी सेवा में तत्पर हैं।'
-        : 'Welcome to Mehdipur Balaji Automobile! Your trusted HP Fuel Hub, powering your journeys with certified pure fuel, DEF urea, and 24/7 highway service.';
+    // 2. High-priority: Use recorded static intro.mp3 to avoid consuming any Gemini TTS quota
+    const staticAudio = getStaticIntroAudio();
+    if (staticAudio) {
+      introAudioCache[lang] = staticAudio;
+      res.json({
+        ...staticAudio,
+        source: 'static_recording',
+        text: introText,
+      });
+      return;
+    }
 
+    // 3. Fallback to Gemini TTS if static recording is not present
     if (!ai) {
       res.json({
         fallback: true,
         text: introText,
         lang,
+        source: 'browser_speech',
       });
       return;
     }
 
+    const voice = (req.query.voice as string) || 'Aoede';
     const response = await ai.models.generateContent({
       model: 'gemini-3.8-flash-lite-tts',
       contents: [
@@ -627,15 +666,38 @@ app.get('/api/intro-audio', async (req: Request, res: Response) => {
       fallback: true,
       text: introText,
       lang,
+      source: 'browser_speech',
     });
   } catch (err: any) {
-    console.error('Error generating intro audio:', err?.message || err);
+    // Graceful handling of Gemini TTS rate limits / quota exhaustion (429) without crashing or logging error traces
+    const isQuotaError =
+      err?.status === 'RESOURCE_EXHAUSTED' ||
+      err?.message?.includes('429') ||
+      err?.message?.includes('quota') ||
+      err?.message?.includes('RESOURCE_EXHAUSTED');
+
+    if (isQuotaError) {
+      console.warn('Gemini TTS quota reached; smoothly falling back to pre-recorded / browser audio.');
+    } else {
+      console.warn('Audio fallback triggered:', err?.message || 'TTS unavailable');
+    }
+
+    // Attempt static recording fallback even in catch block
+    const staticAudio = getStaticIntroAudio();
+    if (staticAudio) {
+      res.json({
+        ...staticAudio,
+        source: 'static_recording_fallback',
+        text: introText,
+      });
+      return;
+    }
+
     res.json({
       fallback: true,
-      text:
-        req.query.lang === 'hi'
-          ? 'नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल में आपका हार्दिक स्वागत है।'
-          : 'Welcome to Mehdipur Balaji Automobile! Your trusted HP Fuel Hub.',
+      text: introText,
+      lang,
+      source: 'browser_speech',
     });
   }
 });
@@ -800,6 +862,64 @@ server.on('upgrade', (request, socket, head) => {
   }
 });
 
+// Google Search Console Verification Endpoint
+app.get('/googlecc3f13dd6fd384e5.html', (_req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send('google-site-verification: googlecc3f13dd6fd384e5.html');
+});
+
+// Generic Google verification catch-all for any verification HTML file
+app.get('/google:id.html', (req: Request, res: Response) => {
+  const fileName = `google${req.params.id}.html`;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(`google-site-verification: ${fileName}`);
+});
+
+// Search Engine Crawling & Sitemap Endpoints (Dynamic Host + Static File Support)
+app.get('/robots.txt', (req: Request, res: Response) => {
+  const host = req.get('host') || 'mehdipur-balaji-automobile-hp-petrol-pump-8069.ai.studio';
+  const protocol = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'https');
+  res.type('text/plain');
+  res.send(`User-agent: *\nAllow: /\nSitemap: ${protocol}://${host}/sitemap.xml\n`);
+});
+
+app.get('/sitemap.xml', (req: Request, res: Response) => {
+  const host = req.get('host') || 'mehdipur-balaji-automobile-hp-petrol-pump-8069.ai.studio';
+  const protocol = (req.headers['x-forwarded-proto'] as string) || (req.secure ? 'https' : 'https');
+  const today = new Date().toISOString().split('T')[0];
+  res.type('application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${protocol}://${host}/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${protocol}://${host}/amp</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>`);
+});
+
+// Accelerated Mobile Pages (AMP) endpoints
+app.get(['/amp', '/amp.html'], (_req: Request, res: Response) => {
+  const ampPaths = [
+    path.resolve(__dirname, 'dist', 'amp.html'),
+    path.resolve(__dirname, 'public', 'amp.html'),
+  ];
+  for (const p of ampPaths) {
+    if (fs.existsSync(p)) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.sendFile(p);
+    }
+  }
+  res.status(404).send('AMP version not found');
+});
+
 // Mount static production bundle or Vite in dev
 async function setupVite() {
   const distPath = path.resolve(__dirname, 'dist');
@@ -808,16 +928,28 @@ async function setupVite() {
 
   if (hasDist || process.env.NODE_ENV === 'production') {
     app.use(express.static(distPath, {
-      maxAge: '1h',
+      maxAge: '1y',
       setHeaders: (res, filePath) => {
         if (filePath.endsWith('.html') || filePath.endsWith('sw.js') || filePath.endsWith('manifest.webmanifest')) {
           res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        } else if (filePath.includes('/assets/') || filePath.endsWith('.mp3')) {
+          // Content-hashed assets and audio can be cached aggressively for maximum speed
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        } else {
+          res.setHeader('Cache-Control', 'public, max-age=86400');
         }
       }
     }));
 
     app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api') || req.path.startsWith('/live')) {
+      if (
+        req.path.startsWith('/api') ||
+        req.path.startsWith('/live') ||
+        req.path.startsWith('/google') ||
+        req.path.startsWith('/amp') ||
+        req.path === '/robots.txt' ||
+        req.path === '/sitemap.xml'
+      ) {
         return next();
       }
       res.sendFile(indexHtml);

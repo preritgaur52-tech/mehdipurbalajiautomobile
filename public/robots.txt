@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mehdipur-balaji-automobile-hp-petrol-pump-8069.ai.studio/sitemap.xml

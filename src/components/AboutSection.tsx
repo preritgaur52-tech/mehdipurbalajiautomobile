@@ -85,6 +85,22 @@ export const AboutSection: React.FC = () => {
               </div>
             </div>
 
+            {/* Station Leadership & Owner Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-950 via-blue-900 to-indigo-950 text-white border border-blue-800/80 shadow-lg">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-yellow-400">
+                  <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+                  <span>Station Proprietor & Leadership</span>
+                </div>
+                <h4 className="text-xl font-extrabold text-white">
+                  Shashank Sharma
+                </h4>
+                <p className="text-xs text-blue-200 leading-relaxed max-w-xl italic">
+                  "नमस्ते! मेंहदीपुर बालाजी ऑटोमोबाइल, एचपी फ्यूल हब में आपका हार्दिक स्वागत है। मथुरा-हाथरस हाईवे पर शत-प्रतिशत शुद्ध फ्यूल और 24 घंटे साफ़ सुविधाओं के साथ आपकी हर यात्रा हो सुखद और सुरक्षित!" — ऑनर: शशांक शर्मा
+                </p>
+              </div>
+            </div>
+
             {/* Concluding Partner Statement */}
             <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs sm:text-sm text-blue-950 font-medium leading-relaxed">
               At Mehdipur Balaji Automobile, we are more than just a refueling stop—we are a dedicated partner in your travels. Stop by today and experience service where quality and trust meet.

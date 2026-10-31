@@ -106,7 +106,7 @@ export const Hero: React.FC<HeroProps> = ({
             )}
             <button
               onClick={() => setHeroImageMode(heroImageMode === 'dusk' ? 'day' : 'dusk')}
-              className="text-[11px] font-semibold text-blue-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 border border-slate-700"
+              className="text-[11px] font-semibold text-blue-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 border border-slate-700 cursor-pointer"
             >
               {heroImageMode === 'dusk' ? (
                 <>
@@ -138,11 +138,22 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Display Headline */}
             <div className="space-y-3">
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white uppercase leading-[1.05]">
+                <span className="block text-xl sm:text-3xl lg:text-4xl font-bold text-blue-300 tracking-normal mb-1 sm:mb-2 normal-case">
+                  Mehdipur Balaji Automobile
+                </span>
                 HP FUEL HUB
               </h1>
-              <p className="text-xl sm:text-2xl font-semibold text-blue-200 tracking-wide italic">
+              <p className="text-lg sm:text-2xl font-semibold text-blue-200 tracking-wide italic">
                 Powering The journeys With Quality And Trust
               </p>
+            </div>
+
+            {/* Station Owner Identity Badge */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-yellow-400/60 backdrop-blur-md text-xs font-semibold text-yellow-300 shadow-md">
+                <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                <span>Owner & Proprietor: <strong className="text-white font-bold ml-1">Shashank Sharma</strong></span>
+              </div>
             </div>
 
             {/* Sub-paragraph */}

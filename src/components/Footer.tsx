@@ -44,6 +44,9 @@ export const Footer: React.FC<FooterProps> = ({
 
             <div className="pt-2 text-xs text-slate-400 space-y-1">
               <div>
+                <strong className="text-white">Station Proprietor / Owner:</strong> Shashank Sharma
+              </div>
+              <div>
                 <strong className="text-white">Operating Hours:</strong> 24 Hours / 7 Days a Week
               </div>
               <div>
